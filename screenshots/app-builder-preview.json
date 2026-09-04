@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "MentalMath Pro",
+      "hasCanvas": false,
+      "bodyTextLen": 1034,
+      "bodyTextHash": "c5848cc83a7cbf6722f4ffb49f64965a466f0f3d71b81f9302c297c76d78c368",
+      "bodyTextPrefix": "MentalMath Pro Percent, multiply, divide, add Tricks Challenge 1",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "MentalMath Pro",
+      "hasCanvas": false,
+      "bodyTextLen": 228,
+      "bodyTextHash": "fda78192c871907072d6d43bf3b8a3200e78e79efc74d401643b41929e6d3d3b",
+      "bodyTextPrefix": "MentalMath Pro Challenge 10:00 1 min 5 min 10 min 15 min 20 min ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

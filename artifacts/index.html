@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Math Addition Trainer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: {
+                                light: '#3b82f6',
+                                DEFAULT: '#2563eb',
+                                dark: '#1d4ed8'
+                            },
+                            green: {
+                                light: '#4ade80',
+                                DEFAULT: '#22c55e',
+                                dark: '#16a34a'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Smooth transitions for theme switching */
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        /* Custom scrollbar for instructions panel */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.7);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 sticky top-0 z-10 shadow-sm transition-colors">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm shadow-blue-500/30">
+                    ∑
+                </div>
+                <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent dark:from-blue-400 dark:to-emerald-400">
+                    MentalMath Pro
+                </h1>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button id="instructionsToggleBtn" class="px-3 py-1.5 text-sm font-medium border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1">
+                    <span>📖</span> Instructions
+                </button>
+                <button id="themeToggleBtn" class="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition text-lg" aria-label="Toggle Theme">
+                    🌓
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Layout Container -->
+    <main class="max-w-6xl w-full mx-auto p-4 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        
+        <!-- Left/Center Columns: Game Area -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Dashboard / Score and Level Selector -->
+            <section class="bg-white dark:bg-slate-950 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Select Game Level</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <button onclick="setLevel(1)" id="lvlBtn-1" class="level-btn p-3 border rounded-xl flex flex-col items-center justify-center transition dynamic-level-btn">
+                            <span class="text-lg font-bold">1-Digit</span>
+                            <span class="text-xs opacity-75 mt-0.5">Warm-up</span>
+                        </button>
+                        <button onclick="setLevel(2)" id="lvlBtn-2" class="level-btn p-3 border rounded-xl flex flex-col items-center justify-center transition dynamic-level-btn">
+                            <span class="text-lg font-bold">2-Digit</span>
+                            <span class="text-xs opacity-75 mt-0.5">Casual</span>
+                        </button>
+                        <button onclick="setLevel(3)" id="lvlBtn-3" class="level-btn p-3 border rounded-xl flex flex-col items-center justify-center transition dynamic-level-btn">
+                            <span class="text-lg font-bold">3-Digit</span>
+                            <span class="text-xs opacity-75 mt-0.5">Core Guide</span>
+                        </button>
+                        <button onclick="setLevel(4)" id="lvlBtn-4" class="level-btn p-3 border rounded-xl flex flex-col items-center justify-center transition dynamic-level-btn">
+                            <span class="text-lg font-bold">4-Digit</span>
+                            <span class="text-xs opacity-75 mt-0.5">Grandmaster</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Dashboard Grid -->
+                <div class="grid grid-cols-3 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl text-center">
+                        <div class="text-xs text-slate-400 dark:text-slate-500 font-medium">Correct</div>
+                        <div id="scoreCorrect" class="text-xl font-bold text-emerald-600 dark:text-emerald-400">0</div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl text-center">
+                        <div class="text-xs text-slate-400 dark:text-slate-500 font-medium">Streak</div>
+                        <div id="scoreStreak" class="text-xl font-bold text-blue-600 dark:text-blue-400">0</div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl text-center">
+                        <div class="text-xs text-slate-400 dark:text-slate-500 font-medium">Total Solved</div>
+                        <div id="scoreTotal" class="text-xl font-bold text-slate-600 dark:text-slate-300">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Active Math Practice Arena -->
+            <section class="bg-white dark:bg-slate-950 p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center relative transition-colors">
+                
+                <!-- Math Formula Display -->
+                <div class="my-6 py-4 px-2 bg-slate-50 dark:bg-slate-900/40 rounded-xl inline-block min-w-[240px]">
+                    <div class="text-4xl sm:text-5xl font-mono font-bold tracking-wide select-none flex items-center justify-center gap-4 text-slate-800 dark:text-white">
+                        <span id="num1">0</span>
+                        <span class="text-blue-500 dark:text-blue-400 font-sans">+</span>
+                        <span id="num2">0</span>
+                    </div>
+                </div>
+
+                <!-- Form Submission Control Arena -->
+                <form id="answerForm" onsubmit="handleSubmit(event)" class="max-w-xs mx-auto space-y-4">
+                    <div class="relative">
+                        <input type="number" id="userAnswer" placeholder="Type your answer..." required autocomplete="off"
+                            class="w-full text-center px-4 py-3.5 text-2xl font-mono font-semibold bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-colors shadow-inner" />
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button type="submit" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-blue-500/20 active:scale-[0.98] transition">
+                            Check Answer
+                        </button>
+                        <button type="button" onclick="generateProblem()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 p-3 rounded-xl transition active:scale-[0.98]" title="Skip problem">
+                            🔄
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Feedback Display Panel -->
+                <div id="feedbackContainer" class="mt-6 p-4 rounded-xl hidden transition-all duration-300">
+                    <div id="feedbackText" class="text-lg font-bold mb-1"></div>
+                    <div id="feedbackSubtext" class="text-sm opacity-90"></div>
+                </div>
+            </section>
+
+            <!-- Strategy Walkthrough breakdown Container (Appears when needed) -->
+            <section id="walkthroughSection" class="bg-white dark:bg-slate-950 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hidden transition-colors">
+                <div class="flex items-center space-x-2 border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
+                    <span class="text-xl">🧠</span>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">Mental Strategy Breakdown</h3>
+                </div>
+                <div id="walkthroughContent" class="space-y-4 text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                    <!-- Dynamic walk-through calculations go here -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Column: Instructions Sidebar Pane -->
+        <div id="instructionsPanel" class="lg:col-span-1 bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col max-h-[85vh] lg:sticky lg:top-24 transition-colors">
+            <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/20 rounded-t-2xl">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl text-emerald-500">💡</span>
+                    <h3 class="font-bold text-slate-800 dark:text-slate-100">Speed Addition Strategy</h3>
+                </div>
+                <button id="closeInstructionsBtn" class="lg:hidden text-slate-400 hover:text-slate-600 text-lg p-1">&times;</button>
+            </div>
+            
+            <div class="p-5 overflow-y-auto custom-scrollbar space-y-6 text-sm">
+                <p class="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                    To add numbers quickly in your head, the core strategy is to break the numbers apart and add from left to right (hundreds first), rather than right to left like you do on paper. This reduces mental strain.
+                </p>
+
+                <hr class="border-slate-100 dark:border-slate-800" />
+
+                <!-- Left to Right Strategy -->
+                <div class="space-y-2">
+                    <h4 class="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                        <span class="w-1.5 h-4 bg-blue-500 rounded-sm"></span>
+                        1. The Left-to-Right Strategy
+                    </h4>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs">Split the second number into its place values and add sequentially.</p>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 font-mono text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                        <div class="font-semibold text-slate-800 dark:text-slate-200">Example: 342 + 235</div>
+                        <div>• 342 + <span class="font-bold text-blue-500">200</span> = 542</div>
+                        <div>• 542 + <span class="font-bold text-blue-500">30</span> = 572</div>
+                        <div>• 572 + <span class="font-bold text-emerald-500">5</span> = <span class="font-bold text-emerald-500">577</span></div>
+                    </div>
+                </div>
+
+                <!-- Compensation Method -->
+                <div class="space-y-2">
+                    <h4 class="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                        <span class="w-1.5 h-4 bg-blue-500 rounded-sm"></span>
+                        2. Compensation (Rounding Up)
+                    </h4>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs">If a number ends in 7, 8, or 9, round up to an easy boundary, then adjust at the end.</p>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 font-mono text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                        <div class="font-semibold text-slate-800 dark:text-slate-200">Example: 456 + 198</div>
+                        <div class="text-[11px] italic text-slate-400">198 is very close to 200 (2 short)</div>
+                        <div>• Round up: 456 + <span class="font-bold text-blue-500">200</span> = 656</div>
+                        <div>• Subtract extra: 656 - <span class="font-bold text-rose-500">2</span> = <span class="font-bold text-emerald-500">654</span></div>
+                    </div>
+                </div>
+
+                <!-- Bridging Method -->
+                <div class="space-y-2">
+                    <h4 class="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                        <span class="w-1.5 h-4 bg-blue-500 rounded-sm"></span>
+                        3. "Make a Hundred" Rule
+                    </h4>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs">Transfer a small value from one number to bump the other to a perfect hundred.</p>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 font-mono text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                        <div class="font-semibold text-slate-800 dark:text-slate-200">Example: 295 + 143</div>
+                        <div class="text-[11px] italic text-slate-400">295 needs exactly 5 to become 300</div>
+                        <div>• Steal 5 from 143 (leaves 138)</div>
+                        <div>• New problem: <span class="font-bold text-blue-500">300</span> + 138 = <span class="font-bold text-emerald-500">438</span></div>
+                    </div>
+                </div>
+
+                <!-- Column Grouping -->
+                <div class="space-y-2">
+                    <h4 class="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                        <span class="w-1.5 h-4 bg-blue-500 rounded-sm"></span>
+                        4. Grouping by Columns
+                    </h4>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs">When minimal carrying is required, separate columns, add each, and combine.</p>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 font-mono text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                        <div class="font-semibold text-slate-800 dark:text-slate-200">Example: 523 + 364</div>
+                        <div>• Hundreds: 500 + 300 = 800</div>
+                        <div>• Tens: 20 + 60 = 80</div>
+                        <div>• Ones: 3 + 4 = 7</div>
+                        <div>• Combine: 800 + 80 + 7 = <span class="font-bold text-emerald-500">887</span></div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40 rounded-xl text-xs space-y-1">
+                    <div class="font-bold flex items-center gap-1">🌟 The Golden Rule</div>
+                    <p class="leading-relaxed">Never try to visualize the written addition algorithm in your head. Picturing "carrying the 1" takes too much working memory. Speak running totals aloud to yourself instead!</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Interactive JavaScript Application Code logic -->
+    <script>
+        // State variables initialized
+        let currentLevel = 3;
+        let val1 = 0;
+        let val2 = 0;
+        let correctResult = 0;
+        
+        let stats = {
+            correct: 0,
+            streak: 0,
+            total: 0
+        };
+
+        // DOM Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check default user dark-mode preferences
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+            
+            setupThemeControls();
+            setupResponsiveInstructions();
+            setLevel(3); // Start default game at 3 digits as requested
+        });
+
+        function setupThemeControls() {
+            const btn = document.getElementById('themeToggleBtn');
+            btn.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+        }
+
+        function setupResponsiveInstructions() {
+            const panel = document.getElementById('instructionsPanel');
+            const toggleBtn = document.getElementById('instructionsToggleBtn');
+            const closeBtn = document.getElementById('closeInstructionsBtn');
+
+            toggleBtn.addEventListener('click', () => {
+                panel.classList.toggle('hidden');
+                if(!panel.classList.contains('hidden')) {
+                    panel.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+
+            closeBtn.addEventListener('click', () => {
+                panel.classList.add('hidden');
+            });
+        }
+
+        function setLevel(lvl) {
+            currentLevel = lvl;
+            
+            // UI Button Highlighting Loop
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`lvlBtn-${i}`);
+                if (i === lvl) {
+                    btn.classList.remove('border-slate-200', 'dark:border-slate-800', 'text-slate-600', 'dark:text-slate-400');
+                    btn.classList.add('border-blue-500', 'bg-blue-50/50', 'text-blue-600', 'dark:bg-blue-950/40', 'dark:text-blue-400', 'border-2');
+                } else {
+                    btn.classList.remove('border-blue-500', 'bg-blue-50/50', 'text-blue-600', 'dark:bg-blue-950/40', 'dark:text-blue-400', 'border-2');
+                    btn.classList.add('border-slate-200', 'dark:border-slate-800', 'text-slate-600', 'dark:text-slate-400');
+                }
+            }
+
+            generateProblem();
+        }
+
+        function generateRange(digits) {
+            const min = digits === 1 ? 1 : Math.pow(10, digits - 1);
+            const max = Math.pow(10, digits) - 1;
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateProblem() {
+            val1 = generateRange(currentLevel);
+            val2 = generateRange(currentLevel);
+            correctResult = val1 + val2;
+
+            // Update UI Interface view
+            document.getElementById('num1').textContent = val1;
+            document.getElementById('num2').textContent = val2;
+
+            // Reset input form state
+            const inp = document.getElementById('userAnswer');
+            inp.value = '';
+            inp.focus();
+
+            // Clear temporary response validation containers
+            document.getElementById('feedbackContainer').classList.add('hidden');
+            document.getElementById('walkthroughSection').classList.add('hidden');
+        }
+
+        function handleSubmit(e) {
+            e.preventDefault();
+            const inputElement = document.getElementById('userAnswer');
+            const userAns = parseInt(inputElement.value, 10);
+            
+            stats.total += 1;
+            const isCorrect = userAns === correctResult;
+
+            const feedbackBox = document.getElementById('feedbackContainer');
+            const feedbackTxt = document.getElementById('feedbackText');
+            const feedbackSub = document.getElementById('feedbackSubtext');
+
+            feedbackBox.classList.remove('hidden', 'bg-emerald-50', 'dark:bg-emerald-950/40', 'text-emerald-800', 'dark:text-emerald-300', 'bg-rose-50', 'dark:bg-rose-950/40', 'text-rose-800', 'dark:text-rose-300');
+
+            if (isCorrect) {
+                stats.correct += 1;
+                stats.streak += 1;
+                
+                feedbackTxt.textContent = "🎉 Correct Match!";
+                feedbackSub.textContent = `Excellent mental workout. Your running streak is now ${stats.streak}.`;
+                feedbackBox.classList.add('bg-emerald-50', 'dark:bg-emerald-950/40', 'text-emerald-800', 'dark:text-emerald-300');
+            } else {
+                stats.streak = 0;
+                
+                feedbackTxt.textContent = "❌ Not Quite Right";
+                feedbackSub.textContent = `The actual absolute total calculation was ${correctResult}. Study the mental strategy path below!`;
+                feedbackBox.classList.add('bg-rose-50', 'dark:bg-rose-950/40', 'text-rose-800', 'dark:text-rose-300');
+            }
+
+            // Sync scores to local widgets
+            document.getElementById('scoreCorrect').textContent = stats.correct;
+            document.getElementById('scoreStreak').textContent = stats.streak;
+            document.getElementById('scoreTotal').textContent = stats.total;
+
+            // Produce contextual step-by-step breakdown helper strategy
+            renderWalkthrough(val1, val2);
+        }
+
+        function renderWalkthrough(n1, n2) {
+            const section = document.getElementById('walkthroughSection');
+            const box = document.getElementById('walkthroughContent');
+            box.innerHTML = ''; // Wipe stale rows
+
+            // Categorize mathematical structure to extract optimized training recommendation hints
+            let strategyExplanation = '';
+            
+            // Method 2 detection scenario check: Compensation (ends in high digits like 7,8,9)
+            const lastDigitN2 = n2 % 10;
+            const lastTwoN2 = n2 % 100;
+            
+            if (currentLevel >= 2 && (lastDigitN2 === 8 || lastDigitN2 === 9 || lastTwoN2 > 85)) {
+                // Determine targeted custom rounding index marker block
+                let roundAmount = 10;
+                if (currentLevel >= 3 && lastTwoN2 > 85) roundAmount = 100;
+                
+                const nextBoundary = Math.ceil(n2 / roundAmount) * roundAmount;
+                const difference = nextBoundary - n2;
+                
+                strategyExplanation = `
+                    <div class="space-y-2">
+                        <div class="font-semibold text-blue-600 dark:text-blue-400">💡 Recommended: Compensation Strategy (Rounding up)</div>
+                        <p>Since <strong>${n2}</strong> is extremely close to a rounded boundary, make an easier calculation first then balance the final total:</p>
+                        <ol class="list-decimal pl-5 space-y-1 font-mono text-xs">
+                            <li>Round up ${n2} to the nearest clean milestone: <strong>${nextBoundary}</strong> (which adds an extra ${difference}).</li>
+                            <li>Perform primary addition: ${n1} + <span class="text-blue-500 font-bold">${nextBoundary}</span> = <strong>${n1 + nextBoundary}</strong></li>
+                            <li>Subtract the extra compensation padding: ${n1 + nextBoundary} - <span class="text-rose-500 font-bold">${difference}</span> = <span class="text-emerald-500 font-bold">${correctResult}</span></li>
+                        </ol>
+                    </div>
+                `;
+            } 
+            // Method 3 check: Bridging scenario option (e.g. crossing to an exact clean hundred boundary easily)
+            else if (currentLevel >= 2 && (n1 % 100 >= 85 && n1 % 100 <= 99)) {
+                const remainderNeeded = 100 - (n1 % 100);
+                if (n2 > remainderNeeded) {
+                    strategyExplanation = `
+                        <div class="space-y-2">
+                            <div class="font-semibold text-blue-600 dark:text-blue-400">💡 Recommended: "Make a Hundred" Rule (Bridging)</div>
+                            <p>Borrow a low weight directly from one factor to smooth out the leading boundary value:</p>
+                            <ol class="list-decimal pl-5 space-y-1 font-mono text-xs">
+                                <li><strong>${n1}</strong> needs exactly <span class="text-blue-500 font-bold">${remainderNeeded}</span> to reach a clean hundred milestone.</li>
+                                <li>Steal that ${remainderNeeded} out from ${n2} (leaving <strong>${n2 - remainderNeeded}</strong>).</li>
+                                <li>Re-scale problem formula setup: <span class="text-blue-500 font-bold">${n1 + remainderNeeded}</span> + ${n2 - remainderNeeded} = <span class="text-emerald-500 font-bold">${correctResult}</span></li>
+                            </ol>
+                        </div>
+                    `;
+                }
+            }
+
+            // Default Method fallback standard: The Core Left-To-Right Splitting breakdown algorithm
+            let leftToRightSteps = '';
+            if (currentLevel === 1) {
+                leftToRightSteps = `<li>Simply combine the single digit values directly: ${n1} + ${n2} = <strong>${correctResult}</strong></li>`;
+            } else {
+                let currentRunningSum = n1;
+                const digitsArr = String(n2).split('').map(Number);
+                const totalDigits = digitsArr.length;
+
+                for (let i = 0; i < totalDigits; i++) {
+                    const placeValueMultiplier = Math.pow(10, totalDigits - 1 - i);
+                    const localComponent = digitsArr[i] * placeValueMultiplier;
+                    
+                    if (localComponent > 0) {
+                        const previousSum = currentRunningSum;
+                        currentRunningSum += localComponent;
+                        leftToRightSteps += `<li>Add the ${placeValueMultiplier === 1000 ? 'thousands' : placeValueMultiplier === 100 ? 'hundreds' : placeValueMultiplier === 10 ? 'tens' : 'ones'}: ${previousSum} + <span class="text-blue-500 font-bold">${localComponent}</span> = <strong>${currentRunningSum}</strong></li>`;
+                    }
+                }
+            }
+
+            const standardLeftToRightBlock = `
+                <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    <div class="font-semibold text-slate-700 dark:text-slate-300">⚡ Standard Method: Left-To-Right Splitting (Highly Recommended)</div>
+                    <p>Process your calculation values from left to right to protect working short-term memory registers:</p>
+                    <ul class="list-disc pl-5 space-y-1 font-mono text-xs">
+                        <li>Base baseline start target: <strong>${n1}</strong></li>
+                        ${leftToRightSteps}
+                    </ul>
+                </div>
+            `;
+
+            box.innerHTML = strategyExplanation + standardLeftToRightBlock;
+            section.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
